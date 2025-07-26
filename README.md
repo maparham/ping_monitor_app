@@ -11,6 +11,32 @@ A real-time network monitoring application that continuously pings a target IP a
 - **Interactive Charts**: Plotly-based visualizations with zoom, pan, and hover tooltips
 - **Rolling Data Window**: Maintains last 60 data points by default
 - **Background Processing**: Non-blocking ping operations using threading
+- **Smart Failure Handling**: Uses None values instead of arbitrary numbers for failed pings
+
+## Architecture
+
+The application follows a modular design with clear separation of concerns:
+
+```
+main.py (Entry Point)
+    ↓
+ping_monitor/ (Package)
+    ├── web_app.py (Flask Application Layer)
+    ├── ping_engine.py (Data Collection Layer)
+    ├── statistics.py (Business Logic Layer)
+    ├── plot_generator.py (Visualization Layer)
+    ├── templates.py (Presentation Layer)
+    └── config.py (Configuration Layer)
+```
+
+### Core Components
+
+- **PingEngine**: Background thread that executes ping commands and stores data
+- **StatisticsCalculator**: Processes raw data into meaningful network metrics
+- **PlotGenerator**: Creates interactive Plotly charts for data visualization
+- **WebApp**: Flask application that serves the web interface
+- **Templates**: HTML template with embedded JavaScript for real-time updates
+- **Config**: Centralized configuration management
 
 ## Requirements
 
@@ -49,6 +75,7 @@ The web dashboard displays:
 ### Charts
 - **TTL Plot**: Shows Time To Live values over time
 - **Ping Time Plot**: Shows response times in milliseconds
+- **Failure Indicators**: Failed pings are shown as red X markers at the top of charts
 
 ### Statistics Panel
 - **Failure Rate**: Percentage of failed pings
@@ -83,10 +110,14 @@ TTL (Time To Live) is a value in the IP header that indicates how many network h
 - **Failure Tracking**: Monitors failed pings and calculates failure durations
 - **Real-time Updates**: Page auto-refreshes every second for live data
 - **Cross-platform**: Uses system `ping` command, works on macOS, Linux, and Windows
+- **Thread Safety**: Proper locking mechanisms for concurrent data access
+- **Error Handling**: Comprehensive logging and graceful error recovery
+- **Smart Data Handling**: Uses None values for failed pings instead of arbitrary numbers
 
 ## Notes
 
 - The application uses the system's `ping` command
-- Failed pings are represented as TTL=-1 and ping time=700ms in the charts
+- Failed pings are represented as None values and shown as red X markers in charts
 - The web interface automatically refreshes every second
-- All data is stored in memory and resets when the application restarts 
+- All data is stored in memory and resets when the application restarts
+- Comprehensive logging is available for debugging and monitoring 
