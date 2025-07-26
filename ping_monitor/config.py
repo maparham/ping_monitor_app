@@ -7,7 +7,7 @@ Centralized configuration constants for the ping monitor application.
 PING_TIMEOUT = 1
 PING_INTERVAL = 1
 DEFAULT_TARGET = "8.8.8.8"
-DEFAULT_MAX_POINTS = 60
+DEFAULT_MAX_POINTS = 300
 
 # Data Constants
 DEFAULT_TTL = 119
@@ -23,7 +23,6 @@ DEFAULT_CHART_HEIGHT = 800
 DEFAULT_Y_PADDING_FACTOR = 0.1
 DEFAULT_TTL_RANGE = (115, 125)
 DEFAULT_PING_RANGE = (0, 100)
-DEFAULT_MAX_CHART_POINTS = 59
 
 # Logging Configuration
 LOG_LEVEL = "WARNING"

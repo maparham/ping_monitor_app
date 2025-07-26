@@ -6,6 +6,7 @@ Main entry point for the Ping Monitor application.
 import webbrowser
 import logging
 from ping_monitor.web_app import create_app
+from ping_monitor.config import DEFAULT_TARGET, DEFAULT_MAX_POINTS
 
 # Suppress Flask development server logs
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -18,8 +19,8 @@ def main():
     print("Opening browser window...")
     print("Press Ctrl+C to stop")
     
-    # Create Flask app
-    app = create_app(target="8.8.8.8", max_points=60)
+    # Create Flask app with config defaults
+    app = create_app(target=DEFAULT_TARGET, max_points=DEFAULT_MAX_POINTS)
     
     # Open browser
     webbrowser.open('http://localhost:5000')

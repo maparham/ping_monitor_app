@@ -88,7 +88,7 @@ class PingEngine:
             else:
                 logger.debug(f"Ping failed with return code {result.returncode}")
         except subprocess.TimeoutExpired:
-            logger.warning(f"Ping timeout for {self.target}")
+            logger.debug(f"Ping timeout for {self.target}")
         except subprocess.CalledProcessError as e:
             logger.debug(f"Ping process error: {e}")
         except ValueError as e:

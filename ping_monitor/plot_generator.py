@@ -10,7 +10,7 @@ from plotly.subplots import make_subplots
 from typing import List, Tuple, Optional
 from .config import (
     DEFAULT_CHART_HEIGHT, DEFAULT_Y_PADDING_FACTOR, DEFAULT_TTL_RANGE,
-    DEFAULT_PING_RANGE, DEFAULT_MAX_CHART_POINTS, DEFAULT_TARGET,
+    DEFAULT_PING_RANGE, DEFAULT_MAX_POINTS, DEFAULT_TARGET,
     LOG_LEVEL, LOG_FORMAT
 )
 
@@ -99,9 +99,10 @@ class PlotGenerator:
                 hovermode='x unified'
             )
             
-            # Update axes
-            fig.update_xaxes(title_text="Sample Number", row=1, col=1, range=[0, DEFAULT_MAX_CHART_POINTS])
-            fig.update_xaxes(title_text="Sample Number", row=2, col=1, range=[0, DEFAULT_MAX_CHART_POINTS])
+            # Update axes with dynamic range based on actual data length
+            max_x = len(ttls) - 1 if ttls else 0
+            fig.update_xaxes(title_text="Sample Number", row=1, col=1, range=[0, max_x])
+            fig.update_xaxes(title_text="Sample Number", row=2, col=1, range=[0, max_x])
             
             # Update y-axis ranges with better error handling
             if successful_ttls and successful_ping_times:
