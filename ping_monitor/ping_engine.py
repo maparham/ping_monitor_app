@@ -84,15 +84,15 @@ class PingEngine:
                     ping_time = float(time_match.group(1)) if time_match else None
                     return ttl, ping_time
                 else:
-                    logger.warning(f"Could not parse TTL from ping response: {result.stdout[:100]}")
+                    logger.debug(f"Could not parse TTL from ping response: {result.stdout[:100]}")
             else:
-                logger.warning(f"Ping failed with return code {result.returncode}")
+                logger.debug(f"Ping failed with return code {result.returncode}")
         except subprocess.TimeoutExpired:
             logger.warning(f"Ping timeout for {self.target}")
         except subprocess.CalledProcessError as e:
-            logger.warning(f"Ping process error: {e}")
+            logger.debug(f"Ping process error: {e}")
         except ValueError as e:
-            logger.warning(f"Value error parsing ping response: {e}")
+            logger.debug(f"Value error parsing ping response: {e}")
         except Exception as e:
             logger.error(f"Unexpected error during ping: {e}")
         
@@ -127,12 +127,12 @@ class PingEngine:
     
     def _ping_loop(self):
         """Background thread that continuously pings and updates data."""
-        logger.info(f"Starting ping loop for {self.target}")
+        logger.debug(f"Starting ping loop for {self.target}")
         while self.running:
             ttl, ping_time = self.ping_target()
             self._process_ping_result(ttl, ping_time)
             time.sleep(PING_INTERVAL)
-        logger.info("Ping loop stopped")
+        logger.debug("Ping loop stopped")
     
     def start(self):
         """Start the ping engine."""
@@ -140,7 +140,7 @@ class PingEngine:
             self.running = True
             self.ping_thread = threading.Thread(target=self._ping_loop, daemon=True)
             self.ping_thread.start()
-            logger.info("Ping engine started")
+            logger.debug("Ping engine started")
     
     def stop(self):
         """Stop the ping engine."""
@@ -148,7 +148,7 @@ class PingEngine:
             self.running = False
             if self.ping_thread:
                 self.ping_thread.join(timeout=1)
-            logger.info("Ping engine stopped")
+            logger.debug("Ping engine stopped")
     
     def get_data(self) -> Tuple[List[Optional[int]], List[Optional[float]]]:
         """

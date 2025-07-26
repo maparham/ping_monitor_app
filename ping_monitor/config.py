@@ -26,5 +26,5 @@ DEFAULT_PING_RANGE = (0, 100)
 DEFAULT_MAX_CHART_POINTS = 59
 
 # Logging Configuration
-LOG_LEVEL = "INFO"
+LOG_LEVEL = "WARNING"
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s" 

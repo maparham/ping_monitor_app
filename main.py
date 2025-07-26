@@ -4,7 +4,12 @@ Main entry point for the Ping Monitor application.
 """
 
 import webbrowser
+import logging
 from ping_monitor.web_app import create_app
+
+# Suppress Flask development server logs
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+logging.getLogger('flask').setLevel(logging.ERROR)
 
 
 def main():
@@ -19,8 +24,8 @@ def main():
     # Open browser
     webbrowser.open('http://localhost:5000')
     
-    # Start Flask app
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    # Start Flask app in quiet mode
+    app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)
 
 
 if __name__ == "__main__":
