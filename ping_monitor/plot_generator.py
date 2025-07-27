@@ -86,8 +86,8 @@ class PlotGenerator:
             )
             
             # Update axes
-            fig.update_xaxes(title_text="Sample Number", row=1, col=1)
-            fig.update_xaxes(title_text="Sample Number", row=2, col=1)
+            # fig.update_xaxes(title_text="Ping Number", row=1, col=1)
+            fig.update_xaxes(title_text="Ping Number", row=2, col=1)
             fig.update_yaxes(title_text="TTL", row=1, col=1)
             fig.update_yaxes(title_text="Ping Time (ms)", row=2, col=1)
             

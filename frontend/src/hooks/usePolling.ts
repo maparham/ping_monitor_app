@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { POLLING_INTERVAL, ERROR_MESSAGES } from '../constants';
+import { POLLING_INTERVAL } from '../constants';
 
 interface UsePollingOptions<T> {
   fetchFn: () => Promise<T>;
