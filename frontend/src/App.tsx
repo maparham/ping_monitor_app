@@ -46,7 +46,9 @@ function App() {
     fetchConfig();
   }, [fetchConfig]);
 
-  if (error) {
+  // Only show error for actual errors, not for expected network issues
+  // If we have data, keep showing it even if there are network issues
+  if (error && !data) {
     return (
       <div className="container">
         <div className="error-message">

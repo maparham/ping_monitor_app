@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../constants';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increased from 10s to 30s to handle slow backend responses during network issues
 });
 
 export const apiService = {

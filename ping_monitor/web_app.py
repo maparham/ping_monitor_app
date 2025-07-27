@@ -96,10 +96,4 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
         if not ping_engine.is_running():
             ping_engine.start()
     
-    @app.teardown_appcontext
-    def stop_ping_engine(exception=None):
-        """Stop ping engine on app teardown."""
-        if ping_engine.is_running():
-            ping_engine.stop()
-    
     return app 
