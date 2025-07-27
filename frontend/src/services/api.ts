@@ -1,21 +1,25 @@
 import axios from 'axios';
 import { ApiResponse, ResetResponse, Config } from '../types/NetworkStats';
+import { API_BASE_URL } from '../constants';
 
-const API_BASE_URL = 'http://localhost:5000';
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+});
 
 export const apiService = {
   async getData(): Promise<ApiResponse> {
-    const response = await axios.get(`${API_BASE_URL}/api/data`);
+    const response = await apiClient.get('/api/data');
     return response.data;
   },
 
   async getConfig(): Promise<Config> {
-    const response = await axios.get(`${API_BASE_URL}/api/config`);
+    const response = await apiClient.get('/api/config');
     return response.data;
   },
 
   async resetStatistics(): Promise<ResetResponse> {
-    const response = await axios.post(`${API_BASE_URL}/api/reset`);
+    const response = await apiClient.post('/api/reset');
     return response.data;
   }
 }; 

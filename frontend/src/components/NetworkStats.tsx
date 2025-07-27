@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import StatItem from './StatItem';
 import type { NetworkStats as NetworkStatsType, Config } from '../types/NetworkStats';
 
@@ -8,7 +8,7 @@ interface NetworkStatsProps {
 }
 
 const NetworkStats: React.FC<NetworkStatsProps> = ({ stats, config }) => {
-  const statItems = [
+  const statItems = useMemo(() => [
     {
       label: 'Failure Rate',
       value: stats.failure_rate,
@@ -47,7 +47,7 @@ const NetworkStats: React.FC<NetworkStatsProps> = ({ stats, config }) => {
       unit: '',
       tooltip: 'Total number of ping requests sent during the monitoring period'
     }
-  ];
+  ], [stats, config]);
 
   return (
     <div className="stats-box">
@@ -55,7 +55,7 @@ const NetworkStats: React.FC<NetworkStatsProps> = ({ stats, config }) => {
       <div className="stats-grid">
         {statItems.map((item, index) => (
           <StatItem
-            key={index}
+            key={`${item.label}-${index}`}
             label={item.label}
             value={item.value}
             unit={item.unit}

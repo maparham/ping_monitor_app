@@ -1,34 +1,35 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import NetworkPlot from './components/NetworkPlot';
 import NetworkStats from './components/NetworkStats';
+import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSpinner from './components/LoadingSpinner';
 import { apiService } from './services/api';
 import { ApiResponse, Config } from './types/NetworkStats';
+import { ERROR_MESSAGES } from './constants';
+import { usePolling } from './hooks/usePolling';
 import './App.css';
 
 function App() {
-  const [data, setData] = useState<ApiResponse | null>(null);
   const [config, setConfig] = useState<Config | null>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    if (isPaused) return;
-    
-    try {
-      setError(null);
-      const response = await apiService.getData();
-      setData(response);
-    } catch (err) {
-      setError('Failed to fetch data');
-    }
-  }, [isPaused]);
+  const {
+    data,
+    error,
+    isLoading,
+    refetch: fetchData,
+    setError
+  } = usePolling({
+    fetchFn: apiService.getData,
+    isPaused
+  });
 
   const fetchConfig = useCallback(async () => {
     try {
       const configData = await apiService.getConfig();
       setConfig(configData);
     } catch (err) {
-      console.error('Failed to fetch config:', err);
+      console.error(ERROR_MESSAGES.FETCH_CONFIG, err);
     }
   }, []);
 
@@ -37,22 +38,13 @@ function App() {
       await apiService.resetStatistics();
       await fetchData();
     } catch (err) {
-      setError('Failed to reset statistics');
+      setError(ERROR_MESSAGES.RESET_STATS);
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchConfig();
   }, [fetchConfig]);
-
-  useEffect(() => {
-    const interval = setInterval(fetchData, 1000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   if (error) {
     return (
@@ -67,36 +59,38 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <div className="controls">
-        <button 
-          className={`control-button ${isPaused ? 'paused' : ''}`}
-          onClick={() => setIsPaused(!isPaused)}
-        >
-          {isPaused ? 'Resume' : 'Pause'}
-        </button>
-        <button className="control-button" onClick={fetchData}>
-          Refresh
-        </button>
-        <button className="control-button" onClick={resetStatistics}>
-          Reset
-        </button>
-        <span className={`status-indicator ${isPaused ? 'status-paused' : 'status-live'}`}>
-          {isPaused ? 'PAUSED' : 'LIVE'}
-        </span>
-      </div>
-
-      {data ? (
-        <>
-          <NetworkPlot plotData={data.plot_data} />
-          <NetworkStats stats={data} config={config} />
-        </>
-      ) : (
-        <div className="loading-message">
-          <strong>Loading...</strong>
+    <ErrorBoundary>
+      <div className="container">
+        <div className="controls">
+          <button 
+            className={`control-button ${isPaused ? 'paused' : ''}`}
+            onClick={() => setIsPaused(!isPaused)}
+          >
+            {isPaused ? 'Resume' : 'Pause'}
+          </button>
+          <button className="control-button" onClick={fetchData}>
+            Refresh
+          </button>
+          <button className="control-button" onClick={resetStatistics}>
+            Reset
+          </button>
+          <span className={`status-indicator ${isPaused ? 'status-paused' : 'status-live'}`}>
+            {isPaused ? 'PAUSED' : 'LIVE'}
+          </span>
         </div>
-      )}
-    </div>
+
+        {isLoading && !data ? (
+          <LoadingSpinner message="Loading network data..." />
+        ) : data ? (
+          <>
+            <NetworkPlot plotData={data.plot_data} />
+            <NetworkStats stats={data} config={config} />
+          </>
+        ) : (
+          <LoadingSpinner message="Initializing..." />
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }
 

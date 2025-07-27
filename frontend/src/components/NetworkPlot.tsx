@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import Plotly from 'plotly.js';
 import { PlotData } from '../types/NetworkStats';
+import { PLOT_HEIGHT, PLOT_MARGIN, RESIZE_DEBOUNCE_MS } from '../constants';
 
 interface NetworkPlotProps {
   plotData: PlotData;
@@ -8,21 +9,30 @@ interface NetworkPlotProps {
 
 const NetworkPlot: React.FC<NetworkPlotProps> = ({ plotData }) => {
   const plotRef = useRef<HTMLDivElement>(null);
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  const handleResize = useCallback(() => {
+    if (resizeTimeoutRef.current) {
+      clearTimeout(resizeTimeoutRef.current);
+    }
+    
+    resizeTimeoutRef.current = setTimeout(() => {
+      if (plotRef.current) {
+        Plotly.Plots.resize(plotRef.current);
+      }
+    }, RESIZE_DEBOUNCE_MS);
+  }, []);
 
   useEffect(() => {
     if (plotRef.current && plotData) {
       const layout = {
         ...plotData.layout,
         width: undefined,
-        height: 600,
+        height: PLOT_HEIGHT,
         autosize: true,
         margin: {
           ...plotData.layout.margin,
-          t: 120,  // top margin for title
-          b: 120,  // bottom margin for x-axis labels (increased)
-          l: 80,   // left margin for y-axis labels
-          r: 80,   // right margin
-          pad: 4
+          ...PLOT_MARGIN
         }
       };
       
@@ -36,15 +46,14 @@ const NetworkPlot: React.FC<NetworkPlotProps> = ({ plotData }) => {
   }, [plotData]);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (plotRef.current) {
-        Plotly.Plots.resize(plotRef.current);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
       }
     };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [handleResize]);
 
   return (
     <div className="plot-container">
