@@ -9,7 +9,7 @@ import time
 import threading
 import logging
 from collections import deque
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple
 from .config import (
     PING_TIMEOUT, PING_INTERVAL, DEFAULT_TARGET, DEFAULT_MAX_POINTS,
     DEFAULT_TTL, DEFAULT_PING_TIME, LOG_LEVEL, LOG_FORMAT
@@ -37,10 +37,10 @@ class PingEngine:
         # Data storage - store None for failed pings
         self.ttls = deque(maxlen=max_points)
         self.ping_times = deque(maxlen=max_points)
-        self.all_ping_times: List[Optional[float]] = []
+        self.all_ping_times: list[Optional[float]] = []
         self.failed_pings = 0
         self.total_pings = 0
-        self.failure_durations: List[int] = []
+        self.failure_durations: list[int] = []
         self.current_failure_start: Optional[int] = None
         
         # Threading
@@ -150,22 +150,28 @@ class PingEngine:
                 self.ping_thread.join(timeout=1)
             logger.debug("Ping engine stopped")
     
-    def get_data(self) -> Tuple[List[Optional[int]], List[Optional[float]]]:
-        """
-        Get current ping data.
-        
-        Returns:
-            Tuple of (TTL values, ping times) - may contain None for failed pings
-        """
+    def reset_statistics(self):
+        """Reset all statistics and data to initial state."""
         with self._lock:  # Thread safety
-            return list(self.ttls), list(self.ping_times)
+            # Clear all data structures
+            self.ttls.clear()
+            self.ping_times.clear()
+            self.all_ping_times.clear()
+            self.failed_pings = 0
+            self.total_pings = 0
+            self.failure_durations.clear()
+            self.current_failure_start = None
+            
+            # Re-initialize with default data
+            self._initialize_data()
+            logger.info("Statistics reset to initial state")
     
     def get_statistics(self) -> dict:
         """
-        Get current statistics.
+        Get current statistics and data.
         
         Returns:
-            Dictionary containing all statistics
+            Dictionary containing all statistics and current data
         """
         with self._lock:  # Thread safety
             return {

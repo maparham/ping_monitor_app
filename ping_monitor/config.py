@@ -9,6 +9,9 @@ PING_INTERVAL = 1
 DEFAULT_TARGET = "8.8.8.8"
 DEFAULT_MAX_POINTS = 300
 
+# Statistics Configuration
+DEFAULT_NUM_WINDOWS = 2  # Number of windows to use for average failed pings calculation
+
 # Data Constants
 DEFAULT_TTL = 119
 DEFAULT_PING_TIME = 10

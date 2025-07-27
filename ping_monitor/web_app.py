@@ -46,16 +46,16 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
     def index():
         """Serve the main page with the plot and statistics."""
         try:
-            # Get current data (may contain None values for failed pings)
-            ttls, ping_times = ping_engine.get_data()
+            # Get current data and statistics
             stats_data = ping_engine.get_statistics()
-            
+            ttls, ping_times = stats_data['ttls'], stats_data['ping_times']
+            logger.warning(stats_data)
             # Create plot with target IP
             fig = PlotGenerator.create_plot(ttls, ping_times, target=target)
             plot_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
             
             # Calculate statistics
-            failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failure_duration = \
+            failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failed_pings = \
                 StatisticsCalculator.calculate_statistics(stats_data)
             
             return render_template_string(HTML_TEMPLATE, 
@@ -64,7 +64,7 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
                                         avg_ping_time=avg_ping_time,
                                         min_ping_time=min_ping_time,
                                         max_ping_time=max_ping_time,
-                                        avg_failure_duration=avg_failure_duration,
+                                        avg_failed_pings=avg_failed_pings,
                                         total_pings=stats_data.get('total_pings', 0),
                                         time=time)
         except Exception as e:
@@ -76,7 +76,7 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
                                         avg_ping_time=0.0,
                                         min_ping_time=0.0,
                                         max_ping_time=0.0,
-                                        avg_failure_duration=0.0,
+                                        avg_failed_pings=0.0,
                                         total_pings=0,
                                         time=time)
     
@@ -84,16 +84,16 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
     def api_data():
         """API endpoint to get current data as JSON for AJAX requests."""
         try:
-            # Get current data
-            ttls, ping_times = ping_engine.get_data()
+            # Get current data and statistics
             stats_data = ping_engine.get_statistics()
+            ttls, ping_times = stats_data['ttls'], stats_data['ping_times']
             
             # Create plot with target IP
             fig = PlotGenerator.create_plot(ttls, ping_times, target=target)
             plot_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
             
             # Calculate statistics
-            failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failure_duration = \
+            failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failed_pings = \
                 StatisticsCalculator.calculate_statistics(stats_data)
             
             return jsonify({
@@ -102,7 +102,7 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
                 'avg_ping_time': avg_ping_time,
                 'min_ping_time': min_ping_time,
                 'max_ping_time': max_ping_time,
-                'avg_failure_duration': avg_failure_duration,
+                'avg_failed_pings': avg_failed_pings,
                 'total_pings': stats_data.get('total_pings', 0)
             })
         except Exception as e:
@@ -113,9 +113,19 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
                 'avg_ping_time': 0.0,
                 'min_ping_time': 0.0,
                 'max_ping_time': 0.0,
-                'avg_failure_duration': 0.0,
+                'avg_failed_pings': 0.0,
                 'total_pings': 0
             }), 500
+    
+    @app.route('/api/reset', methods=['POST'])
+    def api_reset():
+        """API endpoint to reset all statistics."""
+        try:
+            ping_engine.reset_statistics()
+            return jsonify({'success': True, 'message': 'Statistics reset successfully'})
+        except Exception as e:
+            logger.error(f"Error resetting statistics: {e}")
+            return jsonify({'success': False, 'message': f'Error resetting statistics: {str(e)}'}), 500
     
     @app.before_request
     def start_ping_engine():

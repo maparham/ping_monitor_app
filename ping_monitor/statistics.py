@@ -5,7 +5,7 @@ Handles calculation of network statistics.
 
 import logging
 from typing import Dict, Tuple, List, Optional
-from .config import LOG_LEVEL, LOG_FORMAT
+from .config import LOG_LEVEL, LOG_FORMAT, DEFAULT_MAX_POINTS, DEFAULT_NUM_WINDOWS
 
 # Configure logging
 logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
@@ -24,13 +24,12 @@ class StatisticsCalculator:
             stats_data: Dictionary containing ping statistics
             
         Returns:
-            Tuple of (failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failure_duration)
+            Tuple of (failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failed_pings)
         """
         try:
             total_pings = stats_data.get('total_pings', 0)
             failed_pings = stats_data.get('failed_pings', 0)
             all_ping_times: List[Optional[float]] = stats_data.get('all_ping_times', [])
-            failure_durations = stats_data.get('failure_durations', [])
             
             if total_pings == 0:
                 return 0.0, 0.0, 0.0, 0.0, 0.0
@@ -48,45 +47,33 @@ class StatisticsCalculator:
             else:
                 avg_ping_time = min_ping_time = max_ping_time = 0.0
             
-            # Calculate average failure duration
-            avg_failure_duration = sum(failure_durations) / len(failure_durations) if failure_durations else 0
+            # Calculate average failed pings over the last N non-overlapping windows
+            # Each window is DEFAULT_MAX_POINTS long
+            window_size = DEFAULT_MAX_POINTS
+            num_windows = DEFAULT_NUM_WINDOWS
+            total_ping_count = len(all_ping_times)
             
-            return failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failure_duration
+            if total_ping_count >= num_windows * window_size:
+                # We have enough data for N full windows
+                window_failed_counts = []
+                
+                for window_idx in range(num_windows):
+                    window_start = total_ping_count - (num_windows - window_idx) * window_size
+                    window_end = total_ping_count - (num_windows - window_idx - 1) * window_size
+                    
+                    # Count failed pings in this window (None values represent failed pings)
+                    window_failed = sum(1 for i in range(window_start, window_end) 
+                                     if i < len(all_ping_times) and all_ping_times[i] is None)
+                    window_failed_counts.append(window_failed)
+                
+                avg_failed_pings = sum(window_failed_counts) / float(num_windows)
+            else:
+                # Not enough data for N full windows, use available data
+                failed_in_available = sum(1 for ping_time in all_ping_times if ping_time is None)
+                avg_failed_pings = float(failed_in_available)
+            
+            return failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failed_pings
             
         except Exception as e:
             logger.error(f"Error calculating statistics: {e}")
             return 0.0, 0.0, 0.0, 0.0, 0.0
-    
-    @staticmethod
-    def format_statistics(stats_data: Dict) -> Dict[str, str]:
-        """
-        Format statistics for display.
-        
-        Args:
-            stats_data: Dictionary containing ping statistics
-            
-        Returns:
-            Dictionary with formatted statistics strings
-        """
-        try:
-            failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failure_duration = \
-                StatisticsCalculator.calculate_statistics(stats_data)
-            
-            return {
-                'failure_rate': f"{failure_rate:.1f}",
-                'avg_ping_time': f"{avg_ping_time:.1f}",
-                'min_ping_time': f"{min_ping_time:.1f}",
-                'max_ping_time': f"{max_ping_time:.1f}",
-                'avg_failure_duration': f"{avg_failure_duration:.1f}",
-                'total_pings': str(stats_data.get('total_pings', 0))
-            }
-        except Exception as e:
-            logger.error(f"Error formatting statistics: {e}")
-            return {
-                'failure_rate': "0.0",
-                'avg_ping_time': "0.0",
-                'min_ping_time': "0.0",
-                'max_ping_time': "0.0",
-                'avg_failure_duration': "0.0",
-                'total_pings': "0"
-            } 

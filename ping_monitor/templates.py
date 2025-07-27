@@ -123,6 +123,7 @@ HTML_TEMPLATE = """
         <div class="controls">
             <button id="pauseButton" class="control-button" onclick="togglePause()">Pause</button>
             <button class="control-button" onclick="manualRefresh()">Refresh Now</button>
+            <button class="control-button" onclick="resetStatistics()" style="background-color: #dc3545;">Reset Stats</button>
             <span id="statusIndicator" class="status-indicator status-live">LIVE</span>
         </div>
         
@@ -148,8 +149,8 @@ HTML_TEMPLATE = """
                     <div class="stat-value" id="max-ping-time">{{ "%.1f"|format(max_ping_time) }}<span class="stat-unit">ms</span></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Avg Failure Duration</div>
-                    <div class="stat-value" id="avg-failure-duration">{{ "%.1f"|format(avg_failure_duration) }}<span class="stat-unit">s</span></div>
+                    <div class="stat-label">Average Failed Pings</div>
+                    <div class="stat-value" id="avg-failed-pings">{{ "%.1f"|format(avg_failed_pings) }}<span class="stat-unit"></span></div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Total Pings</div>
@@ -222,7 +223,7 @@ HTML_TEMPLATE = """
                     document.getElementById('avg-ping-time').innerHTML = data.avg_ping_time.toFixed(1) + '<span class="stat-unit">ms</span>';
                     document.getElementById('min-ping-time').innerHTML = data.min_ping_time.toFixed(1) + '<span class="stat-unit">ms</span>';
                     document.getElementById('max-ping-time').innerHTML = data.max_ping_time.toFixed(1) + '<span class="stat-unit">ms</span>';
-                    document.getElementById('avg-failure-duration').innerHTML = data.avg_failure_duration.toFixed(1) + '<span class="stat-unit">s</span>';
+                    document.getElementById('avg-failed-pings').innerHTML = data.avg_failed_pings.toFixed(1) + '<span class="stat-unit"></span>';
                     document.getElementById('total-pings').innerHTML = data.total_pings + '<span class="stat-unit"></span>';
                     
                     // Update timestamp
@@ -247,7 +248,7 @@ HTML_TEMPLATE = """
                     document.getElementById('avg-ping-time').innerHTML = data.avg_ping_time.toFixed(1) + '<span class="stat-unit">ms</span>';
                     document.getElementById('min-ping-time').innerHTML = data.min_ping_time.toFixed(1) + '<span class="stat-unit">ms</span>';
                     document.getElementById('max-ping-time').innerHTML = data.max_ping_time.toFixed(1) + '<span class="stat-unit">ms</span>';
-                    document.getElementById('avg-failure-duration').innerHTML = data.avg_failure_duration.toFixed(1) + '<span class="stat-unit">s</span>';
+                    document.getElementById('avg-failed-pings').innerHTML = data.avg_failed_pings.toFixed(1) + '<span class="stat-unit"></span>';
                     document.getElementById('total-pings').innerHTML = data.total_pings + '<span class="stat-unit"></span>';
                     
                     // Update timestamp
@@ -257,6 +258,28 @@ HTML_TEMPLATE = """
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
+        }
+        
+        // Reset statistics function
+        function resetStatistics() {
+            fetch('/api/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Refresh the data to show reset state
+                    manualRefresh();
+                } else {
+                    console.error('Error resetting statistics:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error resetting statistics:', error);
+            });
         }
     </script>
 </body>
