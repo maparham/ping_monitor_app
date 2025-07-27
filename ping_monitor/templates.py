@@ -116,6 +116,60 @@ HTML_TEMPLATE = """
             color: #6c757d;
             font-size: 14px;
         }
+        .hint-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .hint-icon:hover {
+            background-color: #495057;
+        }
+        .hint-container {
+            position: relative;
+            display: inline-block;
+        }
+        .hint-tooltip {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            font-size: 12px;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .hint-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .hint-container:hover .hint-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -133,27 +187,63 @@ HTML_TEMPLATE = """
             <div class="stats-title">Network Statistics</div>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-label">Failure Rate</div>
+                    <div class="stat-label">
+                        Failure Rate
+                        <div class="hint-container">
+                            <span class="hint-icon">?</span>
+                            <span class="hint-tooltip">Percentage of ping attempts that failed (0-100%). Higher values indicate network connectivity issues.</span>
+                        </div>
+                    </div>
                     <div class="stat-value" id="failure-rate">{{ "%.1f"|format(failure_rate) }}<span class="stat-unit">%</span></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Average Ping Time</div>
+                    <div class="stat-label">
+                        Average Ping Time
+                        <div class="hint-container">
+                            <span class="hint-icon">?</span>
+                            <span class="hint-tooltip">Average response time for successful ping attempts in milliseconds. Lower values indicate better network performance.</span>
+                        </div>
+                    </div>
                     <div class="stat-value" id="avg-ping-time">{{ "%.1f"|format(avg_ping_time) }}<span class="stat-unit">ms</span></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Min Ping Time</div>
+                    <div class="stat-label">
+                        Min Ping Time
+                        <div class="hint-container">
+                            <span class="hint-icon">?</span>
+                            <span class="hint-tooltip">Fastest response time recorded for successful ping attempts in milliseconds.</span>
+                        </div>
+                    </div>
                     <div class="stat-value" id="min-ping-time">{{ "%.1f"|format(min_ping_time) }}<span class="stat-unit">ms</span></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Max Ping Time</div>
+                    <div class="stat-label">
+                        Max Ping Time
+                        <div class="hint-container">
+                            <span class="hint-icon">?</span>
+                            <span class="hint-tooltip">Slowest response time recorded for successful ping attempts in milliseconds.</span>
+                        </div>
+                    </div>
                     <div class="stat-value" id="max-ping-time">{{ "%.1f"|format(max_ping_time) }}<span class="stat-unit">ms</span></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Average Failed Pings</div>
+                    <div class="stat-label">
+                        Average Failed Pings
+                        <div class="hint-container">
+                            <span class="hint-icon">?</span>
+                            <span class="hint-tooltip">Average number of failed pings over the last 2 windows of 300 pings each. Provides insight into recent network reliability trends.</span>
+                        </div>
+                    </div>
                     <div class="stat-value" id="avg-failed-pings">{{ "%.1f"|format(avg_failed_pings) }}<span class="stat-unit"></span></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Total Pings</div>
+                    <div class="stat-label">
+                        Total Pings
+                        <div class="hint-container">
+                            <span class="hint-icon">?</span>
+                            <span class="hint-tooltip">Total number of ping attempts made since the last reset or application start.</span>
+                        </div>
+                    </div>
                     <div class="stat-value" id="total-pings">{{ total_pings }}<span class="stat-unit"></span></div>
                 </div>
             </div>
