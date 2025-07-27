@@ -6,7 +6,7 @@ import time
 import threading
 import logging
 from collections import deque
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple
 from .config import PING_TIMEOUT, PING_INTERVAL, DEFAULT_TARGET, DEFAULT_MAX_POINTS, DEFAULT_NUM_WINDOWS
 
 logging.getLogger().setLevel(logging.ERROR)
@@ -96,7 +96,7 @@ class PingEngine:
     def stop(self):
         """Stop ping engine."""
         self.running = False
-        if self.ping_thread:
+        if self.ping_thread and self.ping_thread.is_alive():
             self.ping_thread.join()
     
     def is_running(self) -> bool:

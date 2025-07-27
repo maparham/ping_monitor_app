@@ -13,14 +13,23 @@ class PlotGenerator:
     def create_plot(ttls: List[Optional[int]], ping_times: List[Optional[float]], target: str = DEFAULT_TARGET) -> go.Figure:
         """Create the Plotly figure with current data."""
         try:
+            if not ttls:
+                # Return empty figure if no data
+                fig = go.Figure()
+                fig.add_annotation(text="No data available", xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False)
+                return fig
+            
             sample_numbers = list(range(len(ttls)))
             
-            # Separate successful and failed pings
-            successful_indices = [i for i, ttl in enumerate(ttls) if ttl is not None]
-            failed_indices = [i for i, ttl in enumerate(ttls) if ttl is None]
+            # Separate successful and failed pings more efficiently
+            successful_data = []
+            failed_indices = []
             
-            successful_ttls = [ttls[i] for i in successful_indices]
-            successful_ping_times = [ping_times[i] for i in successful_indices]
+            for i, (ttl, ping_time) in enumerate(zip(ttls, ping_times)):
+                if ttl is not None and ping_time is not None:
+                    successful_data.append((i, ttl, ping_time))
+                else:
+                    failed_indices.append(i)
             
             fig = make_subplots(
                 rows=2, cols=1,
@@ -29,28 +38,30 @@ class PlotGenerator:
             )
             
             # Add successful ping traces
-            if successful_ttls:
+            if successful_data:
+                successful_indices, successful_ttls, successful_ping_times = zip(*successful_data)
+                
                 fig.add_trace(
-                    go.Scatter(x=[sample_numbers[i] for i in successful_indices], 
+                    go.Scatter(x=successful_indices, 
                               y=successful_ttls, mode='lines+markers', name='TTL', 
                               line=dict(color='blue', width=2), marker=dict(size=4)),
                     row=1, col=1
                 )
                 
                 fig.add_trace(
-                    go.Scatter(x=[sample_numbers[i] for i in successful_indices], 
+                    go.Scatter(x=successful_indices, 
                               y=successful_ping_times, mode='lines+markers', name='Ping Time', 
                               line=dict(color='red', width=2), marker=dict(size=4)),
                     row=2, col=1
                 )
             
-            # Add failure markers
+            # Add failure markers only if there are failures
             if failed_indices:
-                max_ttl = max(successful_ttls) if successful_ttls else 120
-                max_ping = max(successful_ping_times) if successful_ping_times else 100
+                max_ttl = max(successful_ttls) if successful_data else 120
+                max_ping = max(successful_ping_times) if successful_data else 100
                 
                 fig.add_trace(
-                    go.Scatter(x=[sample_numbers[i] for i in failed_indices], 
+                    go.Scatter(x=failed_indices, 
                               y=[max_ttl + 2] * len(failed_indices), 
                               mode='markers', name='Failed Pings',
                               marker=dict(symbol='x', size=8, color='red')),
@@ -58,7 +69,7 @@ class PlotGenerator:
                 )
                 
                 fig.add_trace(
-                    go.Scatter(x=[sample_numbers[i] for i in failed_indices], 
+                    go.Scatter(x=failed_indices, 
                               y=[max_ping + 10] * len(failed_indices), 
                               mode='markers', name='Failed Pings',
                               marker=dict(symbol='x', size=8, color='red')),
