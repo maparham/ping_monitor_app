@@ -4,7 +4,7 @@
 PING_TIMEOUT = 1
 PING_INTERVAL = 1
 DEFAULT_TARGET = "8.8.8.8"
-DEFAULT_MAX_POINTS = 10
+DEFAULT_MAX_POINTS = 60
 
 # Statistics settings
 DEFAULT_NUM_WINDOWS = 2  # Number of windows to use for avg_failed_pings calculation
