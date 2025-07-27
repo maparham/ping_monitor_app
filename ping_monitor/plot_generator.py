@@ -1,56 +1,31 @@
-"""
-Plot Generator Module
-Handles creation of Plotly charts and visualizations.
-"""
+"""Plot generator for network monitoring."""
 
 import time
-import logging
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from typing import List, Tuple, Optional
-from .config import (
-    DEFAULT_CHART_HEIGHT, DEFAULT_Y_PADDING_FACTOR, DEFAULT_TTL_RANGE,
-    DEFAULT_PING_RANGE, DEFAULT_MAX_POINTS, DEFAULT_TARGET,
-    LOG_LEVEL, LOG_FORMAT
-)
-
-# Configure logging
-logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
-logger = logging.getLogger(__name__)
-
+from typing import List, Optional
+from .config import DEFAULT_TARGET
 
 class PlotGenerator:
     """Generates Plotly charts for network monitoring."""
     
     @staticmethod
     def create_plot(ttls: List[Optional[int]], ping_times: List[Optional[float]], target: str = DEFAULT_TARGET) -> go.Figure:
-        """
-        Create the Plotly figure with current data.
-        
-        Args:
-            ttls: List of TTL values (may contain None for failed pings)
-            ping_times: List of ping times (may contain None for failed pings)
-            target: Target IP address for display
-            
-        Returns:
-            Plotly figure object
-        """
+        """Create the Plotly figure with current data."""
         try:
-            # Create sample numbers for the current window (always 0 to len-1)
             sample_numbers = list(range(len(ttls)))
             
-            # Separate successful and failed pings for better visualization
+            # Separate successful and failed pings
             successful_indices = [i for i, ttl in enumerate(ttls) if ttl is not None]
             failed_indices = [i for i, ttl in enumerate(ttls) if ttl is None]
             
-            # Get successful ping data
             successful_ttls = [ttls[i] for i in successful_indices]
             successful_ping_times = [ping_times[i] for i in successful_indices]
             
             fig = make_subplots(
                 rows=2, cols=1,
-                subplot_titles=(f'Live TTL Plot for {target}', f'Live Ping Time Plot for {target}'),
-                vertical_spacing=0.1
+                subplot_titles=(f'TTL for {target}', f'Ping Time for {target}'),
+                vertical_spacing=0.2
             )
             
             # Add successful ping traces
@@ -69,9 +44,8 @@ class PlotGenerator:
                     row=2, col=1
                 )
             
-            # Add failure markers if there are failed pings
+            # Add failure markers
             if failed_indices:
-                # Add failure markers at the top of the chart
                 max_ttl = max(successful_ttls) if successful_ttls else 120
                 max_ping = max(successful_ping_times) if successful_ping_times else 100
                 
@@ -93,40 +67,23 @@ class PlotGenerator:
             
             # Update layout
             fig.update_layout(
-                title=f'Real-time Network Monitoring - Last updated: {time.strftime("%H:%M:%S")}',
-                height=DEFAULT_CHART_HEIGHT,
+                title=f'Network Monitoring - {time.strftime("%H:%M:%S")}',
+                height=600,
                 showlegend=True,
-                hovermode='x unified'
+                hovermode='x unified',
+                margin=dict(t=120, b=120, l=80, r=80, pad=4)
             )
             
-            # Update axes with dynamic range based on actual data length
-            max_x = len(ttls) - 1 if ttls else 0
-            fig.update_xaxes(title_text="Sample Number", row=1, col=1, range=[0, max_x])
-            fig.update_xaxes(title_text="Sample Number", row=2, col=1, range=[0, max_x])
-            
-            # Update y-axis ranges with better error handling
-            if successful_ttls and successful_ping_times:
-                # TTL axis
-                min_ttl = min(successful_ttls)
-                max_ttl = max(successful_ttls)
-                padding = max(1, (max_ttl - min_ttl) * DEFAULT_Y_PADDING_FACTOR)
-                fig.update_yaxes(range=[min_ttl - padding, max_ttl + padding + 5], row=1, col=1)
-                
-                # Ping time axis
-                min_time = min(successful_ping_times)
-                max_time = max(successful_ping_times)
-                padding = max(0.1, (max_time - min_time) * DEFAULT_Y_PADDING_FACTOR)
-                fig.update_yaxes(range=[min_time - padding, max_time + padding + 15], row=2, col=1)
-            else:
-                # Default ranges when no data
-                fig.update_yaxes(range=DEFAULT_TTL_RANGE, row=1, col=1)
-                fig.update_yaxes(range=DEFAULT_PING_RANGE, row=2, col=1)
+            # Update axes
+            fig.update_xaxes(title_text="Sample Number", row=1, col=1)
+            fig.update_xaxes(title_text="Sample Number", row=2, col=1)
+            fig.update_yaxes(title_text="TTL", row=1, col=1)
+            fig.update_yaxes(title_text="Ping Time (ms)", row=2, col=1)
             
             return fig
             
-        except Exception as e:
-            logger.error(f"Error creating plot: {e}")
-            # Return a basic figure on error
-            fig = make_subplots(rows=2, cols=1, subplot_titles=('Error', 'Error'))
-            fig.update_layout(title='Error generating plot')
+        except Exception:
+            # Return empty figure on error
+            fig = go.Figure()
+            fig.add_annotation(text="Error creating plot", xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False)
             return fig 

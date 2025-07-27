@@ -1,32 +1,15 @@
-"""
-Configuration Module
-Centralized configuration constants for the ping monitor application.
-"""
+"""Configuration for the ping monitor."""
 
-# Ping Engine Configuration
+# Ping settings
 PING_TIMEOUT = 1
 PING_INTERVAL = 1
 DEFAULT_TARGET = "8.8.8.8"
-DEFAULT_MAX_POINTS = 300
+DEFAULT_MAX_POINTS = 10
 
-# Statistics Configuration
-DEFAULT_NUM_WINDOWS = 2  # Number of windows to use for average failed pings calculation
+# Statistics settings
+DEFAULT_NUM_WINDOWS = 2  # Number of windows to use for avg_failed_pings calculation
 
-# Data Constants
-DEFAULT_TTL = 119
-DEFAULT_PING_TIME = 10
-
-# Web Application Configuration
+# Web settings
 DEFAULT_PORT = 5000
 DEFAULT_HOST = "0.0.0.0"
-AUTO_REFRESH_INTERVAL = 1  # seconds
-
-# Chart Configuration
-DEFAULT_CHART_HEIGHT = 800
-DEFAULT_Y_PADDING_FACTOR = 0.1
-DEFAULT_TTL_RANGE = (115, 125)
-DEFAULT_PING_RANGE = (0, 100)
-
-# Logging Configuration
-LOG_LEVEL = "WARNING"
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s" 
+AUTO_REFRESH_INTERVAL = 1 
