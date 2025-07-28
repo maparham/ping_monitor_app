@@ -1,8 +1,8 @@
 // API Configuration
 export const API_BASE_URL = 'http://localhost:5000';
 
-// Polling Configuration
-export const POLLING_INTERVAL = 1000; // 1 second
+// Default Polling Configuration (fallback if backend config is not available)
+export const DEFAULT_POLLING_INTERVAL = 1000; // 1 second
 
 // Error Messages
 export const ERROR_MESSAGES = {

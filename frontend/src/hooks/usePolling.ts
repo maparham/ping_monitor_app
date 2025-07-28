@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { POLLING_INTERVAL } from '../constants';
+import { DEFAULT_POLLING_INTERVAL } from '../constants';
 
 interface UsePollingOptions<T> {
   fetchFn: () => Promise<T>;
@@ -11,7 +11,7 @@ interface UsePollingOptions<T> {
 export function usePolling<T>({ 
   fetchFn, 
   isPaused = false, 
-  interval = POLLING_INTERVAL,
+  interval = DEFAULT_POLLING_INTERVAL,
   immediate = true 
 }: UsePollingOptions<T>) {
   const [data, setData] = useState<T | null>(null);

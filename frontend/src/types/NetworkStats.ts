@@ -11,6 +11,8 @@ export interface Config {
   max_points: number;
   num_windows: number;
   target: string;
+  auto_refresh_interval: number;
+  api_url: string;
 }
 
 export interface ChartDataPoint {

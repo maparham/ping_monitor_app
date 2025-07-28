@@ -7,11 +7,11 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from .ping_engine import PingEngine
 from .statistics import StatisticsCalculator
-from .config import DEFAULT_TARGET, DEFAULT_MAX_POINTS, DEFAULT_NUM_WINDOWS
+from .config import DEFAULT_TARGET, DEFAULT_MAX_POINTS, DEFAULT_NUM_WINDOWS, AUTO_REFRESH_INTERVAL, DEFAULT_HOST, DEFAULT_PORT
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINTS, num_windows: int = DEFAULT_NUM_WINDOWS) -> Flask:
+def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINTS, num_windows: int = DEFAULT_NUM_WINDOWS, auto_refresh_interval: int = AUTO_REFRESH_INTERVAL, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> Flask:
     """Create Flask application."""
     app = Flask(__name__)
     CORS(app)
@@ -85,14 +85,18 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
             return jsonify({
                 'max_points': max_points,
                 'num_windows': num_windows,
-                'target': target
+                'target': target,
+                'auto_refresh_interval': auto_refresh_interval,
+                'api_url': f'http://{host}:{port}'
             })
         except Exception as e:
             logging.error(f"Error serving config data: {e}")
             return jsonify({
                 'max_points': DEFAULT_MAX_POINTS,
                 'num_windows': DEFAULT_NUM_WINDOWS,
-                'target': DEFAULT_TARGET
+                'target': DEFAULT_TARGET,
+                'auto_refresh_interval': AUTO_REFRESH_INTERVAL,
+                'api_url': f'http://{DEFAULT_HOST}:{DEFAULT_PORT}'
             }), 500
     
     @app.route('/api/reset', methods=['POST'])

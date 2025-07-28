@@ -3,9 +3,9 @@ import NetworkPlot from './components/NetworkPlot';
 import NetworkStats from './components/NetworkStats';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
-import { apiService } from './services/api';
-import { ApiResponse, Config } from './types/NetworkStats';
-import { ERROR_MESSAGES } from './constants';
+import { apiService, updateApiBaseUrl } from './services/api';
+import { Config } from './types/NetworkStats';
+import { ERROR_MESSAGES, DEFAULT_POLLING_INTERVAL } from './constants';
 import { usePolling } from './hooks/usePolling';
 import './App.css';
 
@@ -21,13 +21,18 @@ function App() {
     setError
   } = usePolling({
     fetchFn: apiService.getData,
-    isPaused
+    isPaused,
+    interval: config?.auto_refresh_interval ? config.auto_refresh_interval * 1000 : DEFAULT_POLLING_INTERVAL // Convert seconds to milliseconds
   });
 
   const fetchConfig = useCallback(async () => {
     try {
       const configData = await apiService.getConfig();
       setConfig(configData);
+      // Update API base URL with the one from backend config
+      if (configData.api_url) {
+        updateApiBaseUrl(configData.api_url);
+      }
     } catch (err) {
       console.error(ERROR_MESSAGES.FETCH_CONFIG, err);
     }

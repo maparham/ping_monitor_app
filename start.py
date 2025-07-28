@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 import os
+from ping_monitor.config import DEFAULT_HOST, DEFAULT_PORT
 
 def main():
     """Start both Flask backend and React frontend."""
@@ -25,7 +26,7 @@ def main():
     
     print("\n✅ Both services started!")
     print("Frontend: http://localhost:3000")
-    print("API: http://localhost:5000")
+    print(f"API: http://{DEFAULT_HOST}:{DEFAULT_PORT}")
     print("\nPress Ctrl+C to stop both services")
     
     try:

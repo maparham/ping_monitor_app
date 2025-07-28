@@ -2,10 +2,18 @@ import axios from 'axios';
 import { ApiResponse, ResetResponse, Config } from '../types/NetworkStats';
 import { API_BASE_URL } from '../constants';
 
-const apiClient = axios.create({
+let apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // Increased from 10s to 30s to handle slow backend responses during network issues
 });
+
+// Function to update API base URL when config is loaded
+export const updateApiBaseUrl = (apiUrl: string) => {
+  apiClient = axios.create({
+    baseURL: apiUrl,
+    timeout: 30000,
+  });
+};
 
 export const apiService = {
   async getData(): Promise<ApiResponse> {
