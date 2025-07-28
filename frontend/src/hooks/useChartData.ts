@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ChartDataPoint } from '../types/NetworkStats';
 
-export const useChartData = (chartData: ChartDataPoint[], maxPoints: number = 100) => {
+export const useChartData = (chartData: ChartDataPoint[], maxPoints: number) => {
   // Optimize data for smooth scrolling - show only last N points
   const optimizedData = useMemo(() => {
     if (chartData.length <= maxPoints) return chartData;

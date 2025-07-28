@@ -41,7 +41,7 @@ const BaseChart: React.FC<BaseChartProps> = ({
   lineName,
   calculateYDomain
 }) => {
-  const { optimizedData, displayData } = useChartData(chartData, 100);
+  const { optimizedData, displayData } = useChartData(chartData, maxPoints);
 
   // Calculate Y domain (either static or dynamic)
   const yDomain = useMemo(() => {
