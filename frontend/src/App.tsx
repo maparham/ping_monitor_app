@@ -85,7 +85,7 @@ function App() {
           <LoadingSpinner message="Loading network data..." />
         ) : data ? (
           <>
-            <NetworkPlot plotData={data.plot_data} />
+            <NetworkPlot chartData={data.chart_data} maxPoints={config?.max_points} />
             <NetworkStats stats={data} config={config} />
           </>
         ) : (

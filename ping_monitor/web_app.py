@@ -2,12 +2,11 @@
 
 import json
 import logging
-import plotly.utils
+import time
 from flask import Flask, jsonify
 from flask_cors import CORS
 from .ping_engine import PingEngine
 from .statistics import StatisticsCalculator
-from .plot_generator import PlotGenerator
 from .config import DEFAULT_TARGET, DEFAULT_MAX_POINTS, DEFAULT_NUM_WINDOWS
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -36,14 +35,30 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
             stats_data = ping_engine.get_statistics()
             ttls, ping_times = stats_data['ttls'], stats_data['ping_times']
             
-            fig = PlotGenerator.create_plot(ttls, ping_times, target=target)
-            plot_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            # Transform data for Recharts format
+            chart_data = []
+            for i, (ttl, ping_time) in enumerate(zip(ttls, ping_times)):
+                if ttl is not None and ping_time is not None:
+                    chart_data.append({
+                        'index': i,
+                        'ttl': ttl,
+                        'pingTime': ping_time,
+                        'timestamp': time.time()
+                    })
+                else:
+                    # Failed pings - mark with null values
+                    chart_data.append({
+                        'index': i,
+                        'ttl': None,
+                        'pingTime': None,
+                        'timestamp': time.time()
+                    })
             
             failure_rate, avg_ping_time, min_ping_time, max_ping_time, avg_failed_pings = \
                 StatisticsCalculator.calculate_statistics(stats_data, num_windows=num_windows)
             
             return jsonify({
-                'plot_data': json.loads(plot_json),
+                'chart_data': chart_data,
                 'failure_rate': failure_rate,
                 'avg_ping_time': avg_ping_time,
                 'min_ping_time': min_ping_time,
@@ -54,7 +69,7 @@ def create_app(target: str = DEFAULT_TARGET, max_points: int = DEFAULT_MAX_POINT
         except Exception as e:
             logging.error(f"Error serving API data: {e}")
             return jsonify({
-                'plot_data': {'data': [], 'layout': {'title': 'Error loading data'}},
+                'chart_data': [],
                 'failure_rate': 0.0,
                 'avg_ping_time': None,
                 'min_ping_time': None,

@@ -13,13 +13,15 @@ export interface Config {
   target: string;
 }
 
-export interface PlotData {
-  data: Plotly.Data[];
-  layout: Partial<Plotly.Layout>;
+export interface ChartDataPoint {
+  index: number;
+  ttl: number | null;
+  pingTime: number | null;
+  timestamp: number;
 }
 
 export interface ApiResponse extends NetworkStats {
-  plot_data: PlotData;
+  chart_data: ChartDataPoint[];
 }
 
 export interface ResetResponse {
