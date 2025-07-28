@@ -58,7 +58,7 @@ const BaseChart: React.FC<BaseChartProps> = ({
     
     return optimizedData.filter(d => d[dataKey as keyof ChartDataPoint] === null).map(d => ({
       ...d,
-      [failedDataKey]: midY // Use a separate field for failed pings
+      [failedDataKey]: maxY // Use a separate field for failed pings
     }));
   }, [optimizedData, yDomain, dataKey, failedDataKey]);
 

@@ -9,7 +9,7 @@ export const FAILED_PING_MARK = {
   FILL_COLOR: '#ff0000',
   STROKE_COLOR: '#ff0000',
   SHAPE: 'cross' as const,
-  RADIUS: 5,
+  RADIUS: 3,
   STROKE_WIDTH: 1,
   NAME: 'Failed Pings'
 } as const;
