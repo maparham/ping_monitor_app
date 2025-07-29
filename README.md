@@ -13,7 +13,7 @@ A real-time network monitoring tool that pings a target IP and displays live sta
 
 ## Web Interface
 
-![Ping Monitor Dashboard](ping_monitor_app.png)
+![Ping Monitor Demo](ping_monitor_demo.gif)
 
 ## Quick Start
 
