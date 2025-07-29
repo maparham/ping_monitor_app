@@ -1,13 +1,15 @@
 # Network Ping Monitor
 
-A simple network monitoring tool that pings a target IP and displays real-time statistics.
+A real-time network monitoring tool that pings a target IP and displays live statistics with interactive charts.
 
 ## Features
 
-- Real-time ping monitoring
-- Live statistics and charts
-- Pause/resume functionality
-- Reset statistics
+- **Real-time ping monitoring** with live data updates
+- **Interactive charts** showing ping times and TTL values
+- **Live statistics** including average ping time, failure rate, and more
+- **Pause/resume functionality** to control monitoring
+- **Reset statistics** to start fresh
+- **Dual frontend support** - React and Vue.js versions
 
 ## Web Interface
 
@@ -15,30 +17,68 @@ A simple network monitoring tool that pings a target IP and displays real-time s
 
 ## Quick Start
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
-cd frontend && npm install && cd ..
+### Option 1: Vue.js Frontend (Recommended)
 
-# Run the application
-python start.py
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Install Vue.js dependencies
+cd frontend-vue && npm install && cd ..
+
+# Start both backend and Vue.js frontend
+./start-vue.sh
 ```
 
-The app will open at `http://localhost:3000`
+### Option 2: React Frontend
+
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Install React dependencies
+cd frontend-react && npm install && cd ..
+
+# Start both backend and React frontend
+./start-react.sh
+```
+
+The application will be available at:
+- **Frontend**: http://localhost:3000
+- **API**: http://localhost:5000
 
 ## Manual Start
 
-```bash
-# Terminal 1: Flask backend
-python main.py
+### Backend Only
 
-# Terminal 2: React frontend
-cd frontend && npm start
+```bash
+# Start Flask backend
+python main.py
+```
+
+### Frontend Only
+
+```bash
+# Vue.js frontend
+cd frontend-vue && npm run serve
+
+# React frontend
+cd frontend-react && npm start
 ```
 
 ## API Endpoints
 
-- `GET /api/data` - Get current network data
-- `POST /api/reset` - Reset statistics
+- `GET /api/data` - Get current network statistics and chart data
+- `GET /api/config` - Get application configuration
+- `POST /api/reset` - Reset all statistics
 
-Press `Ctrl+C` to stop. 
+## Frontend Comparison
+
+| Feature | React Version | Vue.js Version |
+|---------|---------------|----------------|
+| Framework | React 18 | Vue.js 3 |
+| Charts | Recharts | Chart.js + Vue-Chartjs |
+| State Management | React Hooks | Vue Composition API |
+| Build Tool | Create React App | Vue CLI |
+| Bundle Size | Larger | Smaller |
+| Performance | Good | Better |

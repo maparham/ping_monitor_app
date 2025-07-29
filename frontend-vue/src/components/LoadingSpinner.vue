@@ -1,0 +1,61 @@
+<template>
+  <div class="loading-container">
+    <div :class="['spinner', `spinner-${size}`]"></div>
+    <p class="loading-text">{{ message }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+interface Props {
+  message?: string;
+  size?: 'small' | 'medium' | 'large';
+}
+
+withDefaults(defineProps<Props>(), {
+  message: 'Loading...',
+  size: 'medium'
+});
+</script>
+
+<style scoped>
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-small {
+  width: 20px;
+  height: 20px;
+}
+
+.spinner-medium {
+  width: 40px;
+  height: 40px;
+}
+
+.spinner-large {
+  width: 60px;
+  height: 60px;
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style> 

@@ -1,0 +1,23 @@
+{
+  "name": "network-ping-monitor",
+  "version": "1.0.0",
+  "description": "Network Ping Monitor with Vue.js Frontend",
+  "scripts": {
+    "start": "./start-vue.sh",
+    "start:backend": "python3 main.py",
+    "start:frontend": "cd frontend-vue && npm run serve",
+    "start:vue": "cd frontend-vue && npm run serve",
+    "build:vue": "cd frontend-vue && npm run build",
+    "install:vue": "cd frontend-vue && npm install"
+  },
+  "keywords": [
+    "network",
+    "monitoring",
+    "ping",
+    "vue",
+    "python",
+    "flask"
+  ],
+  "author": "",
+  "license": "ISC"
+} 
