@@ -7,7 +7,6 @@ DEFAULT_TARGET = "8.8.8.8"
 DEFAULT_MAX_POINTS = 300
 
 # Statistics settings
-DEFAULT_NUM_WINDOWS = 3  # Number of windows to use for avg_failed_pings calculation
 
 # Web settings
 DEFAULT_PORT = 5000

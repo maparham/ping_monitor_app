@@ -182,10 +182,11 @@ const chartOptions = computed((): ChartOptions<'line'> => ({
 }
 
 .chart-section h3 {
-  margin-bottom: 1rem;
+  margin: 0 0 1rem 0;
   color: #2c3e50;
   font-size: 1.1rem;
   text-align: center;
+  line-height: 1.2;
 }
 
 .plot-container {

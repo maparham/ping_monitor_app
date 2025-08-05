@@ -13,7 +13,9 @@ const NetworkStats: React.FC<NetworkStatsProps> = ({ stats, config }) => {
       label: 'Failure Rate',
       value: stats.failure_rate,
       unit: '%',
-      tooltip: 'Percentage of ping requests that failed to reach the target host'
+      tooltip: config 
+        ? `Percentage of failed pings within the current window of ${config.max_points} pings`
+        : 'Percentage of failed pings within the current window'
     },
     {
       label: 'Average Ping Time',
@@ -34,12 +36,12 @@ const NetworkStats: React.FC<NetworkStatsProps> = ({ stats, config }) => {
       tooltip: 'Slowest response time recorded for a successful ping request'
     },
     {
-      label: 'Average Failed Pings',
-      value: stats.avg_failed_pings,
-      unit: '',
+      label: 'Average Outage Duration',
+      value: stats.avg_outage_duration,
+      unit: 'pings',
       tooltip: config 
-        ? `Average number of failed pings over the last ${config.num_windows} windows of ${config.max_points} pings`
-        : 'Average number of failed pings'
+        ? `Average duration of outages (sequences of 2+ failed pings) within the current window of ${config.max_points} pings`
+        : 'Average duration of outages within the current window'
     },
     {
       label: 'Total Pings',

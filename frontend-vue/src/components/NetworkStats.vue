@@ -31,7 +31,9 @@ const statItems = computed(() => [
     label: 'Failure Rate',
     value: props.stats.failure_rate,
     unit: '%',
-    tooltip: 'Percentage of ping requests that failed to reach the target host'
+    tooltip: props.config 
+      ? `Percentage of failed pings within the current window of ${props.config.max_points} pings`
+      : 'Percentage of failed pings within the current window'
   },
   {
     label: 'Average Ping Time',
@@ -52,12 +54,12 @@ const statItems = computed(() => [
     tooltip: 'Slowest response time recorded for a successful ping request'
   },
   {
-    label: 'Average Failed Pings',
-    value: props.stats.avg_failed_pings,
-    unit: '',
+    label: 'Average Outage Duration',
+    value: props.stats.avg_outage_duration,
+    unit: 'pings',
     tooltip: props.config 
-      ? `Average number of failed pings over the last ${props.config.num_windows} windows of ${props.config.max_points} pings`
-      : 'Average number of failed pings'
+      ? `Average duration of outages (sequences of 2+ failed pings) within the current window of ${props.config.max_points} pings`
+      : 'Average duration of outages within the current window'
   },
   {
     label: 'Total Pings',
@@ -74,7 +76,9 @@ const statItems = computed(() => [
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
+  margin: 0;
+  max-width: 800px;
+  width: fit-content;
 }
 
 .stats-title {
@@ -87,7 +91,8 @@ const statItems = computed(() => [
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
   gap: 1rem;
+  justify-content: center;
 }
 </style> 

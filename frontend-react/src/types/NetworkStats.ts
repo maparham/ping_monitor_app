@@ -3,13 +3,12 @@ export interface NetworkStats {
   avg_ping_time: number | null;
   min_ping_time: number | null;
   max_ping_time: number | null;
-  avg_failed_pings: number;
+  avg_outage_duration: number | null;
   total_pings: number;
 }
 
 export interface Config {
   max_points: number;
-  num_windows: number;
   target: string;
   auto_refresh_interval: number;
   api_url: string;

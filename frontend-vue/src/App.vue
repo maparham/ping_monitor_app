@@ -27,8 +27,14 @@
 
       <LoadingSpinner v-if="isLoading && !data" message="Loading network data..." />
                        <template v-else-if="data">
-                   <NetworkPlot :chart-data="data.chart_data" :max-points="config?.max_points" />
-                   <NetworkStats :stats="data" :config="config" />
+                   <div class="main-content">
+                     <div class="charts-section">
+                       <NetworkPlot :chart-data="data.chart_data" :max-points="config?.max_points" />
+                     </div>
+                     <div class="stats-section">
+                       <NetworkStats :stats="data" :config="config" />
+                     </div>
+                   </div>
                  </template>
       <LoadingSpinner v-else message="Initializing..." />
     </div>
@@ -93,9 +99,9 @@ onMounted(() => {
 
 <style scoped>
 .container {
-  max-width: 1200px;
+  max-width: 95vw;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -173,5 +179,34 @@ onMounted(() => {
 .error-message p {
   color: #666;
   margin-bottom: 2rem;
+}
+
+.main-content {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.charts-section {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.stats-section {
+  flex-shrink: 0;
+  width: auto;
+  margin-top: 2.32rem; /* Exact height: (1.1rem * 1.2 line-height) + 1rem margin-bottom */
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+  }
+  
+  .stats-section {
+    width: 100%;
+    margin-top: 0; /* Remove top margin in vertical layout */
+  }
 }
 </style> 

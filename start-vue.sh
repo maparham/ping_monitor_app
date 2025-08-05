@@ -10,7 +10,38 @@ echo "=================================================="
 cleanup() {
     echo ""
     echo "🛑 Shutting down services..."
-    kill $BACKEND_PID $FRONTEND_PID 2>/dev/null
+    
+    # Kill backend process and its children
+    if [ ! -z "$BACKEND_PID" ]; then
+        echo "Stopping backend (PID: $BACKEND_PID)..."
+        kill -TERM $BACKEND_PID 2>/dev/null
+        # Also kill any Python processes running main.py
+        pkill -f "python.*main.py" 2>/dev/null
+    fi
+    
+    # Kill frontend process and its children
+    if [ ! -z "$FRONTEND_PID" ]; then
+        echo "Stopping frontend (PID: $FRONTEND_PID)..."
+        kill -TERM $FRONTEND_PID 2>/dev/null
+        # Also kill any npm serve processes
+        pkill -f "npm.*serve" 2>/dev/null
+    fi
+    
+    # Wait a moment for graceful shutdown
+    sleep 2
+    
+    # Force kill if still running
+    if [ ! -z "$BACKEND_PID" ] && kill -0 $BACKEND_PID 2>/dev/null; then
+        echo "Force killing backend..."
+        kill -KILL $BACKEND_PID 2>/dev/null
+    fi
+    
+    if [ ! -z "$FRONTEND_PID" ] && kill -0 $FRONTEND_PID 2>/dev/null; then
+        echo "Force killing frontend..."
+        kill -KILL $FRONTEND_PID 2>/dev/null
+    fi
+    
+    echo "✅ All services stopped"
     exit 0
 }
 
@@ -34,21 +65,24 @@ echo "🐍 Starting Python backend..."
 # Try to use virtual environment if it exists
 if [ -d ".venv" ]; then
     echo "Using .venv virtual environment..."
-    source .venv/bin/activate && python main.py &
+    bash -c "source .venv/bin/activate; exec python main.py" &
+    BACKEND_PID=$!
 elif [ -d "venv" ]; then
     echo "Using venv virtual environment..."
-    source venv/bin/activate && python main.py &
+    bash -c "source venv/bin/activate; exec python main.py" &
+    BACKEND_PID=$!
 elif command -v python3 &> /dev/null; then
     echo "Using system python3..."
     python3 main.py &
+    BACKEND_PID=$!
 elif command -v python &> /dev/null; then
     echo "Using system python..."
     python main.py &
+    BACKEND_PID=$!
 else
     echo "❌ Error: Python not found. Please install Python 3."
     exit 1
 fi
-BACKEND_PID=$!
 
 # Wait a moment for backend to start
 sleep 3
@@ -64,10 +98,8 @@ echo "✅ Backend running on http://localhost:5000"
 
 # Start the Vue.js frontend
 echo "⚡ Starting Vue.js frontend..."
-cd frontend-vue
-npm run serve &
+bash -c "cd frontend-vue && exec npm run serve" &
 FRONTEND_PID=$!
-cd ..
 
 # Wait a moment for frontend to start
 sleep 5
@@ -89,5 +121,11 @@ echo ""
 echo "Press Ctrl+C to stop all services"
 echo ""
 
-# Wait for user to stop
-wait 
+# Wait for both processes and handle termination
+while kill -0 $BACKEND_PID 2>/dev/null && kill -0 $FRONTEND_PID 2>/dev/null; do
+    sleep 1
+done
+
+# If we reach here, one of the processes died unexpectedly
+echo "⚠️  One of the services stopped unexpectedly"
+cleanup 
